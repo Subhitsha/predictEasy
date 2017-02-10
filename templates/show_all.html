@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+      <hr/>
+      {%- for category, message in get_flashed_messages(with_categories=true) %}
+      <div class="alert alert-success">
+        {{ message }}
+      </div>
+      {%- endfor %}
+
+      <h3>Uploaded Files (<a href="{{ url_for('new') }}">Load more files</a>)</h3>
+      <table class="table">
+  <thead>
+          <tr>
+
+            <th>ID</th>
+            <th>filename</th>
+            <th>created_at</th>
+            
+            
+          </tr>
+	</thead>
+	<tbody>
+          {% for comment in comments %}
+          <tr>
+            <td>{{ comment.id }}</td>
+            <td>{{ comment.filename }}</td>
+            <td>{{ comment.pub_date.strftime("%H:%M:%S %d/%m/%Y") }}</td>
+          
+
+            
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+   {% endblock %}

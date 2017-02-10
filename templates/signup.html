@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Predict Easy</title>
+   
+   <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script> <link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+   <link href="../static/css/signup.css" rel="stylesheet">
+    <script src="../static/js/jquery-1.11.2.js"></script>
+    <script src="../static/js/signIn.js"></script>
+   
+  </head>
+
+  <body>
+<div class="container">
+      <div class="header">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+           
+            <li role="presentation"><a href="/">Login</a></li>
+            <li role="presentation" class="active"><a href="#">Sign Up</a></li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">Predict Easy</h3>
+      </div>
+<h1><center>Sign Up</center></h1><br>
+  <div class = "login">
+<form class = "login-form" method="POST" action="{{url_for('signup')}}"><center>
+	<div class = "inner-form">
+    {{ form.hidden_tag() }}<center>
+    <p class="name"><strong>   Name   :</strong>   {{ form.name}}  </p> </center>
+	    {% if form.name.errors %}
+	    <ul class=errors>
+	    {% for error in form.name.errors %}
+	      <li class = "error">{{ error }}</li>
+	    {% endfor %}
+	    </ul>
+	    {% endif %}
+    <p class="password"><center><strong>Password:</strong>{{ form.password(type = "password") }}</center></p>
+	    {% if form.password.errors %}
+	    <ul class=errors>
+	    {% for error in form.password.errors %}
+	      <li class = "error">{{ error }}</li>
+	    {% endfor %}
+	    </ul>
+	  	{% endif %}
+    <p class="email1"><center><strong>E-mail    :   </strong>{{ form.email }}</center></p>
+    	 {% if form.email.errors %}
+	    <ul class=errors>
+	    {% for error in form.email.errors %}
+	      <li class = "error">{{ error }}</li>
+	    {% endfor %}
+	    </ul>
+	  	{% endif %}<br>
+<center><button id="btnSignIn" class="btn btn-lg" type="submit">Sign Up</button></center>
+    </p>
+    </div></center>
+</form>
+</div>
+</body>
+</html>

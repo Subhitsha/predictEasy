@@ -1,0 +1,78 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <ol class="breadcrumb">
+              <li><a href="/new">Load</a></li>
+              <li><a href="/prepare">Prepare</a></li>
+              <li><a href="/train">Train</a></li>
+
+            </ol>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">
+            <h5 class="hidden-xs">Select Model</h5>
+            <div class="btn-group btn-group-sm">
+              <a class="btn btn-default dropdown-toggle" data-toggle="dropdown"> Linear Regression <span class="fa fa-caret-down"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li>
+                  <a href="#">Multiple Regression</a>
+                </li>
+                <li>
+                  <a href="#">Logistic Regression</a>
+                </li>
+                <li>
+                  <a href="#">Decision Tree</a>
+                </li>
+                <li>
+                  <a href="#">KNN</a>
+                </li>
+                <li>
+                  <a href="#">Decision Tree</a>
+                </li>
+                <li>
+                  <a href="#">Random Forest Classifier</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <h5 class="hidden-xs">Train Split</h5>
+            <input type="number">
+          </div>
+          <div class="col-md-3">
+            <br>
+            <br>
+            <button type="button" class="btn btn-default btn-sm">
+              <strong>Train &amp; Estimate</strong>
+            </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <center></center>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12"></div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <center></center>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
