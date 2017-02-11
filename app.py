@@ -7,8 +7,27 @@ import re
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from forms import SignupForm, LoginForm
+import numpy as np
+from sklearn.preprocessing import Imputer
+from sklearn.cross_validation import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
 
 
+# stdlib
+from json import dumps
+
+def to_json(model):
+    """ Returns a JSON representation of an SQLAlchemy-backed object.
+    """
+    json = {}
+    json['fields'] = {}
+    json['pk'] = getattr(model, 'id')
+
+    for col in model._sa_class_manager.mapper.mapped_table.columns:
+        json['fields'][col.name] = getattr(model, col.name)
+
+    return dumps([json])
 
 
 mysql = MySQL()
@@ -78,6 +97,38 @@ class Comments(db.Model):
 def show_all():
   return render_template('show_all.html', comments=Comments.query.order_by(Comments.pub_date.asc()).all()  )
 
+@app.route('/show_all/<id>')
+def get_data(id):
+    quer=Comments.query.get(id)
+    if not quer:
+        return  'Does not exists'
+    else:
+        cancer_data = np.genfromtxt(fname='uploads/'+quer.filename, delimiter= ',', dtype= float)
+        print "Dataset Lenght:: ", len(cancer_data)
+        print "Dataset:: ", str(cancer_data)
+        print "Dataset Shape:: ", cancer_data.shape
+        cancer_data = np.delete(arr = cancer_data, obj= 0, axis = 1)
+        X = cancer_data[:,range(0,9)]
+        Y = cancer_data[:,9]
+        imp = Imputer(missing_values="NaN", strategy='median', axis=0)
+        X = imp.fit_transform(X)
+        X_train, X_test, y_train, y_test = train_test_split(
+         X, Y, test_size = 0.3, random_state = 100)
+        y_train = y_train.ravel()
+        y_test = y_test.ravel()
+        r = {}
+        for K in range(25):
+            K_value = K+1
+            neigh = KNeighborsClassifier(n_neighbors = K_value, weights='uniform', algorithm='auto')
+            neigh.fit(X_train, y_train) 
+            y_pred = neigh.predict(X_test)
+            r[str(K)] = y_pred
+            print "Accuracy is ", accuracy_score(y_test,y_pred)*100,"% for K-Value:",K_value
+
+        return json.dumps(r)
+
+
+
 
 # This view method responds to the URL /new for the methods GET and POST
 @app.route('/new', methods=['GET', 'POST'])
@@ -120,6 +171,7 @@ def uploaded_file(filename):
 @app.route('/prepare')
 def get_prepare():
     return render_template('prepare.html')
+
 
 @app.route('/train')
 def get_train():

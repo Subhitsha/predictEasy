@@ -35,7 +35,7 @@
 <form class = "login-form" method="POST" action="{{url_for('login')}}">
 <div class="inner-form-login">
     {{ form.hidden_tag() }}
-    <p class="email"><center><strong> E-mail  :</strong>  {{ form.email(size=20) }}</center></p>
+    <p class="email"><center><strong> E-mail  :</strong>  {{ form.email(size=20, class_="form-control") }}</center></p>
     {% if form.email.errors %}
 	    <ul class=errors>
 	    {% for error in form.email.errors %}
@@ -43,7 +43,7 @@
 	    {% endfor %}
 	    </ul>
     {% endif %}
-    <p> <center><strong>Password: </strong>{{ form.password(size=20, type = "password") }}</center></p>
+    <p> <center><strong>Password: </strong>{{ form.password(size=20, type = "password", class_="form-control") }}</center></p>
     {% if form.password.errors %}
 	    <ul class=errors>
 	    {% for error in form.password.errors %}
