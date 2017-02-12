@@ -32,7 +32,7 @@
 <form class = "login-form" method="POST" action="{{url_for('signup')}}"><center>
 	<div class = "inner-form">
     {{ form.hidden_tag() }}<center>
-    <p class="name"><strong>   Name   :</strong>   {{ form.name}}  </p> </center>
+    <p class="name"><strong>   Name  </strong>   {{ form.name(class_="form-control",style="width: 200px;")}}  </p> </center>
 	    {% if form.name.errors %}
 	    <ul class=errors>
 	    {% for error in form.name.errors %}
@@ -40,7 +40,7 @@
 	    {% endfor %}
 	    </ul>
 	    {% endif %}
-    <p class="password"><center><strong>Password:</strong>{{ form.password(type = "password") }}</center></p>
+    <p class="password"><center><strong>Password</strong>{{ form.password(class_="form-control",type = "password",style="width: 200px;") }}</center></p>
 	    {% if form.password.errors %}
 	    <ul class=errors>
 	    {% for error in form.password.errors %}
@@ -48,7 +48,7 @@
 	    {% endfor %}
 	    </ul>
 	  	{% endif %}
-    <p class="email1"><center><strong>E-mail    :   </strong>{{ form.email }}</center></p>
+    <p class="email1"><center><strong>E-mail</strong>{{ form.email(class_="form-control",style="width: 200px;") }}</center></p>
     	 {% if form.email.errors %}
 	    <ul class=errors>
 	    {% for error in form.email.errors %}
