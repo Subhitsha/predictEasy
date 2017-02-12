@@ -7,27 +7,14 @@ import re
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from forms import SignupForm, LoginForm
+import pandas as pd
 import numpy as np
 from sklearn.preprocessing import Imputer
 from sklearn.cross_validation import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import LabelEncoder
 
-
-# stdlib
-from json import dumps
-
-def to_json(model):
-    """ Returns a JSON representation of an SQLAlchemy-backed object.
-    """
-    json = {}
-    json['fields'] = {}
-    json['pk'] = getattr(model, 'id')
-
-    for col in model._sa_class_manager.mapper.mapped_table.columns:
-        json['fields'][col.name] = getattr(model, col.name)
-
-    return dumps([json])
 
 
 mysql = MySQL()
@@ -99,34 +86,51 @@ def show_all():
 
 @app.route('/show_all/<id>')
 def get_data(id):
-    quer=Comments.query.get(id)
+    quer = Comments.query.get(id)
     if not quer:
         return  'Does not exists'
     else:
-        cancer_data = np.genfromtxt(fname='uploads/'+quer.filename, delimiter= ',', dtype= float)
-        print "Dataset Lenght:: ", len(cancer_data)
-        print "Dataset:: ", str(cancer_data)
-        print "Dataset Shape:: ", cancer_data.shape
-        cancer_data = np.delete(arr = cancer_data, obj= 0, axis = 1)
-        X = cancer_data[:,range(0,9)]
-        Y = cancer_data[:,9]
+        
+        # read the dataset and convert to dataframe
+        data = pd.read_csv('uploads/'+quer.filename)
+
+        # remove the ID column which is patient id
+        data.pop('id')
+
+        # Select the target variable column name 'class'
+        Y = data.pop('class').values
+
+        # Assign the features as X
+        X = data.values
+
+        # Replace all missing values in features with median of respective column
         imp = Imputer(missing_values="NaN", strategy='median', axis=0)
         X = imp.fit_transform(X)
+
+        # Split the dataset into 70% training and 30% testing set
         X_train, X_test, y_train, y_test = train_test_split(
          X, Y, test_size = 0.3, random_state = 100)
-        y_train = y_train.ravel()
-        y_test = y_test.ravel()
-        r = {}
-        for K in range(25):
-            K_value = K+1
-            neigh = KNeighborsClassifier(n_neighbors = K_value, weights='uniform', algorithm='auto')
-            neigh.fit(X_train, y_train) 
-            y_pred = neigh.predict(X_test)
-            r[str(K)] = y_pred
-            print "Accuracy is ", accuracy_score(y_test,y_pred)*100,"% for K-Value:",K_value
 
-        return json.dumps(r)
+        # Initializes the KNN classifier with 20 neighbors
+        neigh = KNeighborsClassifier(n_neighbors = 20, weights='uniform', algorithm='auto')
 
+        # Train the instantiated model with 70% training data
+        neigh.fit(X_train, y_train) 
+        
+        # Now model is ready and test using remaining 30%
+        y_pred = neigh.predict(X_test)
+
+
+        # Result is been sent with accuracy, dataset, algorithm used, imputed method
+        response =  {
+            'accuracy' : accuracy_score(y_test,y_pred)*100,
+            'dataset': quer.filename,
+            'algorithm': 'auto',
+            'imputer': 'median'
+
+        }
+
+        return json.dumps(response)
 
 
 
