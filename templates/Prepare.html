@@ -7,64 +7,52 @@
           <div class="col-md-12">
             <ol class="breadcrumb">
               <li><a href="/new">Load</a></li>
-              <li><a href="#">Prepare</a></li>
+              <li><a href="/show_all/">Show all</a></li>
+
+              <li><a href="#">{{ data.filename }}</a></li>
+
             </ol>
           </div>
         </div>
         <div class="row">
-          <div class="col-md-3">
-            <h4 class="hidden-xs">Missing Data</h4>
-            <div class="btn-group btn-group-sm">
-              <a class="btn btn-default dropdown-toggle" data-toggle="dropdown"> Impute Mean <span class="fa fa-caret-down"></span></a>
-              <ul class="dropdown-menu" role="menu">
-                <li>
-                  <a href="#">Impute Median</a>
-                </li>
-                <li>
-                  <a href="#">Impute STD</a>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <div class="panel panel-default">
+              <div class="panel-heading">Preprocess Dataset</div>
+              <div class="panel-body">
+          <form action="/prepare/{{ data.id }}" method="GET">
           <div class="col-md-3">
             <h4 class="hidden-xs">Feature Selection</h4>
             <div class="btn-group btn-group-sm">
-              <a class="btn btn-default dropdown-toggle" data-toggle="dropdown"> Univariant <span class="fa fa-caret-down"></span></a>
-              <ul class="dropdown-menu" role="menu">
-                <li>
-                  <a href="#">Multivariant</a>
-                </li>
-              </ul>
+              <input type="hidden" name="filename" value="{{ data.filename }}">
+              <select class="form-control" multiple="" name="features">
+                  {% for col in columns %}
+                  <option>{{ col }}</option>
+                  {% endfor %}
+              </select>
             </div>
           </div>
           <div class="col-md-3">
             <h4 class="hidden-xs">Target</h4>
             <div class="btn-group btn-group-sm">
-              <a class="btn btn-default dropdown-toggle" data-toggle="dropdown"> Name <span class="fa fa-caret-down"></span></a>
-              <ul class="dropdown-menu" role="menu">
-                <li>
-                  <a href="#">Age</a>
-                </li>
-                <li>
-                  <a href="#">Nickname</a>
-                </li>
-                <li>
-                  <a href="#">Salary</a>
-                </li>
-              </ul>
+               <select class="form-control" name="target">
+                  {% for col in columns %}
+                  <option>{{ col }}</option>
+                  {% endfor %}
+              </select>
             </div>
           </div>
           <div class="col-md-3">
-            <br>
-            
-            <button type="button" class="btn btn-default btn-sm">
+            <h4 class="hidden-xs">Action</h4>
+            <button type="submit" class="btn btn-info btn-lg">
               <strong>Prepare</strong>
             </button>
+          </div>
+          </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="section">
+    </form>
+    <!-- <div class="section">
       <div class="container">
         <div class="row">
           <div class="col-md-12">
@@ -101,6 +89,6 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   
 {% endblock %}
