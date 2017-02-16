@@ -136,7 +136,9 @@ def get_prepare(id):
         'accuracy' : accuracy_score(y_test,y_pred)*100,
         'dataset': filename,
         'algorithm': 'auto',
-        'imputer': 'median'
+        'imputer': 'median',
+        'target': target,
+        'features': features,
 
     }
 

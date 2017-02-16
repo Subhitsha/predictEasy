@@ -39,6 +39,21 @@
           					<td>{{ result.imputer }}</td>
 
           				</tr>
+          				<tr>
+          					<td>Target (Predicted):</td>
+          					<td>
+          						{% for feature in result.features %}
+          						<span class="label label-info">{{ feature }}</span>
+          						{% endfor %}
+
+          					</td>
+
+          				</tr>
+          				<tr>
+          					<td>Target</td>
+          					<td><span class="label label-success">{{ result.target }}</span></td>
+
+          				</tr>
           				
           			</tbody>
           		</table>
