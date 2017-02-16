@@ -1,0 +1,66 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+ <div class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+          	<div class="panel panel-success">
+          		<div class="panel-heading">Classification Report</div>
+          		<div class="panel-body">
+          		<table class="table table-condensed">
+          			<thead>
+          				<th>Key</th>
+          				<th>Value</th>
+
+          			</thead>
+
+          			<tbody>
+          				<tr>
+          					<td>Algorithm</td>
+          					<td>{{ result.algorithm }}</td>
+
+          				</tr>
+
+          				<tr>
+          					<td>Accuracy</td>
+          					<td>{{ result.accuracy }}</td>
+
+          				</tr>
+
+          				<tr>
+          					<td>Dataset</td>
+          					<td>{{ result.dataset }}</td>
+
+          				</tr>
+
+          				<tr>
+          					<td>Imputer</td>
+          					<td>{{ result.imputer }}</td>
+
+          				</tr>
+          				<tr>
+          					<td>Target (Predicted):</td>
+          					<td>
+          						{% for feature in result.features %}
+          						<span class="label label-info">{{ feature }}</span>
+          						{% endfor %}
+
+          					</td>
+
+          				</tr>
+          				<tr>
+          					<td>Target</td>
+          					<td><span class="label label-success">{{ result.target }}</span></td>
+
+          				</tr>
+          				
+          			</tbody>
+          		</table>
+          		</div>
+          	</div>
+          </div>
+        </div>
+      </div>
+  </div>
+{% endblock %}

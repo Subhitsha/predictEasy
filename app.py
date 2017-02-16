@@ -85,7 +85,7 @@ class Comments(db.Model):
 # descending order of pub_date and passing to the
 # template via 'comments' variable
 
-@app.route('/show_all')
+@app.route('/show_all/')
 def show_all():
   return render_template('show_all.html', comments=Comments.query.order_by(Comments.id.asc()).all()  )
 
@@ -96,46 +96,58 @@ def get_data(id):
     if not quer:
         return  'Does not exists'
     else:
-        
-        # read the dataset and convert to dataframe
-        data = pd.read_csv('uploads/'+quer.filename)
-        data.pop('id')
+        # read the csv into dataframe
+        df = pd.read_csv('uploads/'+quer.filename)
 
-        
-        # Select the target variable column name 'class'
-        Y = data.pop('class').values
+        columns = df.columns
+        return render_template('Prepare.html', data=quer, df=df, columns=columns)
+       
 
-        # Assign the features as X
-        X = data.values
-
-        # Replace all missing values in features with median of respective column
-        imp = Imputer(missing_values="NaN", strategy='median', axis=0)
-        X = imp.fit_transform(X)
-
-        # Split the dataset into 70% training and 30% testing set
-        X_train, X_test, y_train, y_test = train_test_split(
-         X, Y, test_size = 0.3, random_state = 100)
-
-        # Initializes the KNN classifier with 20 neighbors
-        neigh = KNeighborsClassifier(n_neighbors = 20, weights='uniform', algorithm='auto')
-
-        # Train the instantiated model with 70% training data
-        neigh.fit(X_train, y_train) 
-        
-        # Now model is ready and test using remaining 30%
-        y_pred = neigh.predict(X_test)
+@app.route('/prepare/<id>')
+def get_prepare(id):
+    filename = request.args.get('filename')
+    features = request.args.getlist('features')
+    target = request.args.get('target')
 
 
-        # Result is been sent with accuracy, dataset, algorithm used, imputed method
-        response =  {
-            'accuracy' : accuracy_score(y_test,y_pred)*100,
-            'dataset': quer.filename,
-            'algorithm': 'auto',
-            'imputer': 'median'
 
-        }
+     # read the dataset and convert to dataframe
+    data = pd.read_csv('uploads/'+filename)
 
-        return json.dumps(response)
+    # Select the target variable column name 'class'
+    Y = data.pop(target).values
+
+    # Assign the features as X
+    X = data[features].values
+
+    # Replace all missing values in features with median of respective column
+    imp = Imputer(missing_values="NaN", strategy='median', axis=0)
+    X = imp.fit_transform(X)
+
+    # Split the dataset into 70% training and 30% testing set
+    X_train, X_test, y_train, y_test = train_test_split(
+     X, Y, test_size = 0.3, random_state = 100)
+
+    # Initializes the KNN classifier with 20 neighbors
+    neigh = KNeighborsClassifier(n_neighbors = 20, weights='uniform', algorithm='auto')
+
+    # Train the instantiated model with 70% training data
+    neigh.fit(X_train, y_train) 
+
+    # Now model is ready and test using remaining 30%
+    y_pred = neigh.predict(X_test)
+
+
+    # Result is been sent with accuracy, dataset, algorithm used, imputed method
+    response =  {
+        'accuracy' : accuracy_score(y_test,y_pred)*100,
+        'dataset': filename,
+        'algorithm': 'auto',
+        'imputer': 'median',
+        'target': target,
+        'features': features,
+
+    }
 
 
 @app.route('/<id>')
@@ -145,6 +157,9 @@ def get_file(id):
     db.session.commit()
     response="deleted"
     return json.dumps(response)   
+
+
+    return render_template('report.html', result=response)
 
 
 # This view method responds to the URL /new for the methods GET and POST
@@ -186,9 +201,6 @@ def uploaded_file(filename):
                                filename)
 
 
-@app.route('/prepare')
-def get_prepare():
-    return render_template('prepare.html')
 
 
 @app.route('/train')
