@@ -19,6 +19,17 @@
               <div class="panel-heading">Preprocess Dataset</div>
               <div class="panel-body">
           <form action="/prepare/{{ data.id }}" method="GET">
+             <div class="col-md-3">
+            <h4 class="hidden-xs">Missing Values</h4>
+            <div class="btn-group btn-group-sm">
+               <select class="form-control" name="missing">
+                  <option>mean</option>
+                  <option>median</option>
+                  <option>most_frequent</option>
+              </select>
+            </div>
+          </div>
+
           <div class="col-md-3">
             <h4 class="hidden-xs">Feature Selection</h4>
             <div class="btn-group btn-group-sm">
@@ -30,6 +41,7 @@
               </select>
             </div>
           </div>
+          
           <div class="col-md-3">
             <h4 class="hidden-xs">Target</h4>
             <div class="btn-group btn-group-sm">
@@ -50,7 +62,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div>             
     </form>
     <!-- <div class="section">
       <div class="container">

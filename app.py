@@ -10,10 +10,15 @@ from forms import SignupForm, LoginForm
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import Imputer
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.naive_bayes import GaussianNB
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import LabelEncoder
+
+
 
 
 
@@ -108,11 +113,11 @@ def get_prepare(id):
     filename = request.args.get('filename')
     features = request.args.getlist('features')
     target = request.args.get('target')
+    missing= request.args.get('missing')
 
-
-
-     # read the dataset and convert to dataframe
+    # read the dataset and convert to dataframe
     data = pd.read_csv('uploads/'+filename)
+
 
     # Select the target variable column name 'class'
     Y = data.pop(target)
@@ -134,18 +139,22 @@ def get_prepare(id):
 
 
     # Replace all missing values in features with median of respective column
-    imp = Imputer(missing_values="NaN", strategy='median', axis=0)
+    imp = Imputer(missing_values="NaN", strategy=missing, axis=0)
     X = imp.fit_transform(X)
 
     # Split the dataset into 70% training and 30% testing set
-    X_train, X_test, y_train, y_test = train_test_split(
-     X, Y, test_size = 0.3, random_state = 100)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.3, random_state = 100)
 
     # Initializes the KNN classifier with 20 neighbors
     neigh = KNeighborsClassifier(n_neighbors = 20, weights='uniform', algorithm='auto')
+     #neigh = LogisticRegression()
+
+    #neigh = GaussianNB()
+    #neigh = DecisionTreeClassifier()
 
     # Train the instantiated model with 70% training data
     neigh.fit(X_train, y_train) 
+
 
     # Now model is ready and test using remaining 30%
     y_pred = neigh.predict(X_test)
@@ -155,13 +164,12 @@ def get_prepare(id):
     response =  {
         'accuracy' : accuracy_score(y_test,y_pred)*100,
         'dataset': filename,
-        'algorithm': 'auto',
-        'imputer': 'median',
+        'algorithm': 'KNN',
+        'imputer': missing,
         'target': target,
         'features': features,
 
     }
-
 
     return render_template('report.html', result=response)
 
@@ -175,7 +183,7 @@ def get_file(id):
     return json.dumps(response)   
 
 
-    return render_template('report.html', result=response)
+
 
 
 # This view method responds to the URL /new for the methods GET and POST
