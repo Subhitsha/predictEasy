@@ -115,10 +115,23 @@ def get_prepare(id):
     data = pd.read_csv('uploads/'+filename)
 
     # Select the target variable column name 'class'
-    Y = data.pop(target).values
+    Y = data.pop(target)
 
     # Assign the features as X
-    X = data[features].values
+    X = data[features]
+
+    
+    # Convert categorical columns into labels
+    from sklearn.preprocessing import LabelEncoder
+    le = LabelEncoder()
+
+    for col in X.columns.values:
+        # Encode only categorical variable
+        if X[col].dtypes == 'object':
+            # Using whole data to form an exhaustive list of levels
+            le.fit(X[col].values)
+            X[col]=le.transform(X[col])
+
 
     # Replace all missing values in features with median of respective column
     imp = Imputer(missing_values="NaN", strategy='median', axis=0)
@@ -148,6 +161,9 @@ def get_prepare(id):
         'features': features,
 
     }
+
+
+    return render_template('report.html', result=response)
 
 
 @app.route('/<id>')
