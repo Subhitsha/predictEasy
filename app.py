@@ -17,6 +17,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import LabelEncoder
 
 
 
@@ -117,8 +118,18 @@ def get_prepare(id):
      # read the dataset and convert to dataframe
     data = pd.read_csv('uploads/'+filename)
 
+    le=LabelEncoder()
+    for col in data.columns.values:
+        if data[col].dtypes=='object':
+            le.fit(data.values)
+            data[col]= le.transform(data[col])
+
+            
+
+
     # Select the target variable column name 'class'
     Y = data.pop(target).values
+    
 
     # Assign the features as X
     X = data[features].values
