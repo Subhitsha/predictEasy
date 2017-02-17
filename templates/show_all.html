@@ -14,7 +14,7 @@
   <thead>
           <tr>
 
-            <th>ID</th>
+            
             <th>filename</th>
             <th>created_at</th>
             <th>Action</th>
@@ -23,7 +23,7 @@
   <tbody>
           {% for comment in comments %}
           <tr>
-            <td>{{ comment.id }}</td>
+            
             <td>{{ comment.filename }}</td>
             <td>{{ comment.pub_date.strftime("%H:%M:%S %d/%m/%Y") }}</td>
             <td> <a href="/show_all/{{ comment.id  }}">Explore</a></td>
