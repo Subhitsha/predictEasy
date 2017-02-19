@@ -9,13 +9,14 @@ from datetime import datetime
 from forms import SignupForm, LoginForm
 import pandas as pd
 import numpy as np
+from sklearn import preprocessing
 from sklearn.preprocessing import Imputer
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
-from sklearn.naive_bayes import GaussianNB
-from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import SelectFromModel
 from sklearn.preprocessing import LabelEncoder
 
 
@@ -113,7 +114,8 @@ def get_prepare(id):
     filename = request.args.get('filename')
     features = request.args.getlist('features')
     target = request.args.get('target')
-    missing= request.args.get('missing')
+    missing = request.args.get('missing')
+    algo = request.args.get('algo')
 
     # read the dataset and convert to dataframe
     data = pd.read_csv('uploads/'+filename)
@@ -127,7 +129,6 @@ def get_prepare(id):
 
     
     # Convert categorical columns into labels
-    from sklearn.preprocessing import LabelEncoder
     le = LabelEncoder()
 
     for col in X.columns.values:
@@ -142,29 +143,40 @@ def get_prepare(id):
     imp = Imputer(missing_values="NaN", strategy=missing, axis=0)
     X = imp.fit_transform(X)
 
+    # Discretization processing on X
+    X = preprocessing.scale(X)
+
+
     # Split the dataset into 70% training and 30% testing set
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.3, random_state = 100)
 
-    # Initializes the KNN classifier with 20 neighbors
-    neigh = KNeighborsClassifier(n_neighbors = 20, weights='uniform', algorithm='auto')
-     #neigh = LogisticRegression()
 
-    #neigh = GaussianNB()
-    #neigh = DecisionTreeClassifier()
+    if algo == 'decision_tree':
+        # initializees the Decision Tree algorithm
+        clf = DecisionTreeClassifier()
+
+    elif algo == 'knn':
+        # Initializes the KNN classifier with 20 neighbors
+        clf = KNeighborsClassifier(n_neighbors = 20, weights='uniform', algorithm='auto')
+
+    elif algo == 'rfc':
+        # initializees the RandomForest Decision Tree algorithm
+        clf = RandomForestClassifier(n_estimators=100, max_depth=None, min_samples_split=2, random_state=0)
+
 
     # Train the instantiated model with 70% training data
-    neigh.fit(X_train, y_train) 
+    clf.fit(X_train, y_train) 
 
 
     # Now model is ready and test using remaining 30%
-    y_pred = neigh.predict(X_test)
+    y_pred = clf.predict(X_test)
 
 
     # Result is been sent with accuracy, dataset, algorithm used, imputed method
     response =  {
         'accuracy' : accuracy_score(y_test,y_pred)*100,
         'dataset': filename,
-        'algorithm': 'KNN',
+        'algorithm': algo,
         'imputer': missing,
         'target': target,
         'features': features,

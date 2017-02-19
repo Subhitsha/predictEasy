@@ -25,39 +25,39 @@
             <li role="presentation" ><a href="/signup">Sign Up</a></li>
           </ul>
         </nav>
-        <h3 class="text-muted">PredictEasy</h3>
+        <h3 class="text-muted"><a href="/">PredictEasy</a></h3>
       </div>
-
-        
-        <h1><center>Login</center></h1>
+      <div class="jumbotron">
+        <h1>predictEasy</h1> 
+        <p>Easy to perform prediction here.</p> 
+      </div>
+      <div class="row">
+        <form class = "login-form" method="POST" action="{{url_for('login')}}">
+          <div class="inner-form-login">
+              {{ form.hidden_tag() }}
+              <p class="email"><strong><center> E-mail</strong>  {{ form.email(size=20, class_="form-control",style="width: 200px;") }}</center></p>
+              {% if form.email.errors %}
+                <ul class=errors>
+                {% for error in form.email.errors %}
+                  <li class = "error">{{ error }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+              <p> <center><strong>Password </strong>{{ form.password(size=20, type = "password", class_="form-control",style="width: 200px;") }}</center></p>
+              {% if form.password.errors %}
+                <ul class=errors>
+                {% for error in form.password.errors %}
+                  <li class = "error">{{ error }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}<br>
+              <center><button id="btnSignIn" class="btn btn-lg" type="submit">Login</button></center>
+              
+              </center>
+          </div>
+      </form>
+      </div>
     
-  <div class = "login">
-<form class = "login-form" method="POST" action="{{url_for('login')}}">
-<div class="inner-form-login">
-    {{ form.hidden_tag() }}
-    <p class="email"><strong><center> E-mail</strong>  {{ form.email(size=20, class_="form-control",style="width: 200px;") }}</center></p>
-    {% if form.email.errors %}
-	    <ul class=errors>
-	    {% for error in form.email.errors %}
-	      <li class = "error">{{ error }}</li>
-	    {% endfor %}
-	    </ul>
-    {% endif %}
-    <p> <center><strong>Password </strong>{{ form.password(size=20, type = "password", class_="form-control",style="width: 200px;") }}</center></p>
-    {% if form.password.errors %}
-	    <ul class=errors>
-	    {% for error in form.password.errors %}
-	      <li class = "error">{{ error }}</li>
-	    {% endfor %}
-	    </ul>
-    {% endif %}<br>
-    <center><button id="btnSignIn" class="btn btn-lg" type="submit">Login</button></center>
-    
-    </center>
-</div>
-</form>
-
-</div>
 </div>
 </body>
 </html>
