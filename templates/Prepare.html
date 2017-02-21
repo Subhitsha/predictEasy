@@ -42,9 +42,18 @@
                 </select>
               </div>
             </div>
+              <div class="col-md-2">
+              <h4 class="hidden-xs">Feature Selection</h4>
+              <div class="btn-group btn-group-sm">
+                 <select class="form-control" name="feature_selection">
+                    <option value="remove_low_variance">Remove Low Variance</option>
+                    <option value="select_from_model">SelectFromModel</option>
+                </select>
+              </div>
+            </div>
 
           <div class="col-md-2">
-            <h4 class="hidden-xs">Feature Selection</h4>
+            <h4 class="hidden-xs">Features</h4>
             <div class="btn-group btn-group-sm">
               <input type="hidden" name="filename" value="{{ data.filename }}">
               <select class="form-control" multiple="" name="features">
@@ -55,7 +64,7 @@
             </div>
           </div>
           
-          <div class="col-md-3">
+          <div class="col-md-2">
             <h4 class="hidden-xs">Target</h4>
             <div class="btn-group btn-group-sm">
                <select class="form-control" name="target">
@@ -65,10 +74,10 @@
               </select>
             </div>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-1">
             <h4 class="hidden-xs">Action</h4>
             <button type="submit" class="btn btn-info btn-lg">
-              <strong>Prepare</strong>
+              <strong>Build Model</strong>
             </button>
           </div>
           </div>
@@ -77,43 +86,6 @@
       </div>
     </div>             
     </form>
-    <!-- <div class="section">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Age</th>
-                  <th>Nickname</th>
-                  <th>Salary</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div> -->
+   
   
 {% endblock %}

@@ -4,7 +4,7 @@
  <div class="section">
       <div class="container">
         <div class="row">
-          <div class="col-md-12">
+          <div class="col-md-6">
           	<div class="panel panel-success">
           		<div class="panel-heading">Classification Report</div>
           		<div class="panel-body">
@@ -21,6 +21,12 @@
           					<td>{{ result.algorithm }}</td>
 
           				</tr>
+
+                  <tr>
+                    <td>Feature Selection</td>
+                    <td>ExtraTreeClassifier, {{ result.feature_selection }}</td>
+
+                  </tr>
 
           				<tr>
           					<td>Accuracy</td>
@@ -57,8 +63,31 @@
           				
           			</tbody>
           		</table>
+
+
+              {{ result.output | safe }}
           		</div>
           	</div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="panel panel-info">
+              <div class="panel-heading">Predict Now</div>
+              <div class="panel-body">
+                <div class="col-md-12">
+                <form action="/prepare/{{ result.id }}" method="POST">
+                  {% for id, row in result.best_five_features.iterrows() %}
+                  <div class="form-group">
+                    <label>{{ row['Features']  }}</label>
+                    <input type="number" name="{{ row['Features'] }}" class="form-control" value="{{ result.random.randint(0,9) }}" required>
+                  </div>
+                  {% endfor %}
+                    <input type="hidden" name="model" value="{{  result.dataset.split('.')[0] }}">
+                  <button type="submit" class="btn btn-success">Predict</button>
+                </form>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

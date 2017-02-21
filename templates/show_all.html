@@ -26,8 +26,7 @@
             
             <td>{{ comment.filename }}</td>
             <td>{{ comment.pub_date.strftime("%H:%M:%S %d/%m/%Y") }}</td>
-            <td> <a href="/show_all/{{ comment.id  }}">Explore</a></td>
-            <td> <a href="/{{ comment.id }}">Delete</a></td>
+            <td> <a href="/show_all/{{ comment.id  }}" class="btn btn-info">Explore</a> <a href="/{{ comment.id }}" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a></td>
             
 
           </tr>

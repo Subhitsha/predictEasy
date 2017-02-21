@@ -1,5 +1,6 @@
 import os
 import time
+import random
 from flask import Flask, render_template, json, request,redirect,session,url_for, send_from_directory,flash
 from flaskext.mysql import MySQL
 from werkzeug import generate_password_hash, check_password_hash,secure_filename
@@ -15,9 +16,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_selection import SelectFromModel
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
+from sklearn.feature_selection import SelectFromModel, VarianceThreshold, SelectKBest, chi2
 from sklearn.preprocessing import LabelEncoder
+from sklearn.externals import joblib
+
 
 
 
@@ -109,81 +112,148 @@ def get_data(id):
         return render_template('Prepare.html', data=quer, df=df, columns=columns)
        
 
-@app.route('/prepare/<id>')
+@app.route('/prepare/<id>', methods=['GET', 'POST'])
 def get_prepare(id):
-    filename = request.args.get('filename')
-    features = request.args.getlist('features')
-    target = request.args.get('target')
-    missing = request.args.get('missing')
-    algo = request.args.get('algo')
 
-    # read the dataset and convert to dataframe
-    data = pd.read_csv('uploads/'+filename)
+    if request.method == 'POST':
 
+        model_name = request.form['model']
 
-    # Select the target variable column name 'class'
-    Y = data.pop(target)
+        form_inputs = list(request.form.values())
 
-    # Assign the features as X
-    X = data[features]
-
-    
-    # Convert categorical columns into labels
-    le = LabelEncoder()
-
-    for col in X.columns.values:
-        # Encode only categorical variable
-        if X[col].dtypes == 'object':
-            # Using whole data to form an exhaustive list of levels
-            le.fit(X[col].values)
-            X[col]=le.transform(X[col])
+        form_inputs.remove(model_name)
 
 
-    # Replace all missing values in features with median of respective column
-    imp = Imputer(missing_values="NaN", strategy=missing, axis=0)
-    X = imp.fit_transform(X)
 
-    # Discretization processing on X
-    X = preprocessing.scale(X)
+        clf = joblib.load('brain/'+ model_name +'.pkl') 
 
+        features = preprocessing.scale([float(i) for i in form_inputs])
+        a = clf.predict(features)
+        return "<h3> Predicted Output:"+ str(a[0]) + "</h3>"
+   
 
-    # Split the dataset into 70% training and 30% testing set
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.3, random_state = 100)
+    if request.method == 'GET':
+        filename = request.args.get('filename')
+        features = request.args.getlist('features')
+        target = request.args.get('target')
+        missing = request.args.get('missing')
+        algo = request.args.get('algo')
+        feature_algo = request.args.get('feature_selection')
 
-
-    if algo == 'decision_tree':
-        # initializees the Decision Tree algorithm
-        clf = DecisionTreeClassifier()
-
-    elif algo == 'knn':
-        # Initializes the KNN classifier with 20 neighbors
-        clf = KNeighborsClassifier(n_neighbors = 20, weights='uniform', algorithm='auto')
-
-    elif algo == 'rfc':
-        # initializees the RandomForest Decision Tree algorithm
-        clf = RandomForestClassifier(n_estimators=100, max_depth=None, min_samples_split=2, random_state=0)
+        # read the dataset and convert to dataframe
+        data = pd.read_csv('uploads/'+filename)
 
 
-    # Train the instantiated model with 70% training data
-    clf.fit(X_train, y_train) 
+        # Select the target variable column name 'class'
+        Y = data.pop(target)
+
+        # Assign the features as X
+        X = data[features]
+
+        
+        # Convert categorical columns into labels
+        le = LabelEncoder()
+
+        for col in X.columns.values:
+            # Encode only categorical variable
+            if X[col].dtypes == 'object':
+                # Using whole data to form an exhaustive list of levels
+                le.fit(X[col].values)
+                X[col]=le.transform(X[col])
 
 
-    # Now model is ready and test using remaining 30%
-    y_pred = clf.predict(X_test)
+        # Replace all missing values in features with median of respective column
+        imp = Imputer(missing_values="NaN", strategy=missing, axis=0)
+        X = imp.fit_transform(X)
 
 
-    # Result is been sent with accuracy, dataset, algorithm used, imputed method
-    response =  {
-        'accuracy' : accuracy_score(y_test,y_pred)*100,
-        'dataset': filename,
-        'algorithm': algo,
-        'imputer': missing,
-        'target': target,
-        'features': features,
+        # Discretization processing on X
+        X = preprocessing.scale(X)
 
-    }
 
-    return render_template('report.html', result=response)
+        # To find best feature based on its importance
+        feature_clf = ExtraTreesClassifier(n_estimators=250, random_state=0)
+        feature_clf.fit(X, Y)
+
+        feature_dict = {}
+        for feature in zip(features, feature_clf.feature_importances_):
+            feature_dict[feature[0]] = feature[1]*100
+
+
+        # Create a selector object that will use the random forest classifier to identify
+        # features that have an importance of more than 0.15
+        if feature_algo == 'select_from_model':
+            sfm = SelectFromModel(feature_clf, threshold=0.15)
+
+        elif feature_algo == 'remove_low_variance':
+            sfm = VarianceThreshold(threshold=(.8 * (1 - .8))) 
+
+        # Train the selector
+        sfm.fit(X, Y)
+
+
+        # Print the names of the most important features
+        most_important_features = [features[feature_list_index] for feature_list_index in sfm.get_support(indices=True)]
+        best_features_df = pd.DataFrame(feature_dict.items(), columns=['Features', 'Score']).sort_values('Score', ascending=False)
+
+
+
+        X = data[list(best_features_df.head()['Features'])]
+
+
+        # Replace all missing values in features with median of respective column
+        imp = Imputer(missing_values="NaN", strategy=missing, axis=0)
+        X = imp.fit_transform(X)
+
+        # Discretization processing on X
+        X = preprocessing.scale(X)
+
+
+        # Split the dataset into 70% training and 30% testing set
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.3, random_state = 100)
+
+
+        if algo == 'decision_tree':
+            # initializees the Decision Tree algorithm
+            clf = DecisionTreeClassifier()
+
+        elif algo == 'knn':
+            # Initializes the KNN classifier with 20 neighbors
+            clf = KNeighborsClassifier(n_neighbors = 20, weights='uniform', algorithm='auto')
+
+        elif algo == 'rfc':
+            # initializees the RandomForest Decision Tree algorithm
+            clf = RandomForestClassifier(n_estimators=100, max_depth=None, min_samples_split=2, random_state=0)
+
+
+        # Train the instantiated model with 70% training data
+        clf.fit(X_train, y_train) 
+
+        # Save the trained model
+        joblib.dump(clf,  'brain/'+ filename.split('.')[0] +'.pkl') 
+
+
+        # Now model is ready and test using remaining 30%
+        y_pred = clf.predict(X_test)
+
+
+        # Result is been sent with accuracy, dataset, algorithm used, imputed method
+        response =  {
+            'accuracy' : accuracy_score(y_test,y_pred)*100,
+            'dataset': filename,
+            'algorithm': algo,
+            'feature_selection': feature_algo,
+            'imputer': missing,
+            'target': target,
+            'features': features,
+            'output': best_features_df.to_html(classes="table table-condensed"),
+            'id': id,
+            'random': random,
+            'best_five_features': best_features_df.head()
+
+        }
+
+        return render_template('report.html', result=response)
 
 
 @app.route('/<id>')
@@ -193,9 +263,6 @@ def get_file(id):
     db.session.commit()
     response="deleted"
     return json.dumps(response)   
-
-
-
 
 
 # This view method responds to the URL /new for the methods GET and POST
@@ -239,9 +306,6 @@ def uploaded_file(filename):
 
 
 
-@app.route('/train')
-def get_train():
-    return render_template('train.html')
 
 @app.route('/userHome')
 def userHome():
