@@ -5,48 +5,71 @@
       <div class="container">
         <div class="row">
           <div class="col-md-6">
+            <div class="panel panel-info">
+              <div class="panel-heading">Predict Now</div>
+              <div class="panel-body">
+                <div class="col-md-12">
+                <form action="/prepare/{{ result.id }}" method="POST" id="predictForm">
+                  {% for id, row in result.best_features.iterrows() %}
+                  <div class="form-group">
+                    <label>{{ row['Features']  }}</label>
+                    <input type="number" name="{{ row['Features'] }}" class="form-control" value="{{ result.random.randint(0,9) }}" required>
+                  </div>
+                  {% endfor %}
+                    <input type="hidden" name="model" value="{{  result.dataset.split('.')[0] }}">
+                  <button type="submit" class="btn btn-success predict">Predict</button>
+
+                  <div class="output" style="margin-top:10px">
+                  </div>
+                </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
           	<div class="panel panel-success">
-          		<div class="panel-heading">Classification Report</div>
+          		<!-- <div class="panel-heading">Classification Report</div> -->
           		<div class="panel-body">
           		<table class="table table-condensed">
           			<thead>
-          				<th>Key</th>
-          				<th>Value</th>
+          				<th><h2><span class="label label-default">Classification Summary</span></h2></th>
+          				<!-- <th>Value</th> -->
 
           			</thead>
 
           			<tbody>
           				<tr>
-          					<td>Algorithm</td>
+          					<td><b>Algorithm</b></td>
           					<td>{{ result.algorithm }}</td>
 
           				</tr>
 
                   <tr>
-                    <td>Feature Selection</td>
+                    <td><b>Feature Selection</b></td>
                     <td>ExtraTreeClassifier, {{ result.feature_selection }}</td>
 
                   </tr>
 
           				<tr>
-          					<td>Accuracy</td>
-          					<td>{{ result.accuracy }}</td>
+          					<td><b>Accuracy</b></td>
+          					<td><span class="label label-primary" style="padding:4px; font-size: 14pt; background: #FF9800">{{  ("%.2f" % result.accuracy)  }}%</span></td>
 
           				</tr>
 
           				<tr>
-          					<td>Dataset</td>
+          					<td><b>Dataset</b></td>
           					<td>{{ result.dataset }}</td>
 
           				</tr>
 
           				<tr>
-          					<td>Missing values</td>
+          					<td><b>Missing values</b></td>
           					<td>{{ result.imputer }}</td>
 
           				</tr>
           				<tr>
-          					<td>Selected Features:</td>
+          					<td><b>Selected Features:</b></td>
           					<td>
           						{% for feature in result.features %}
           						<span class="label label-info">{{ feature }}</span>
@@ -56,7 +79,7 @@
 
           				</tr>
           				<tr>
-          					<td>Target</td>
+          					<td><b>Target</b></td>
           					<td><span class="label label-success">{{ result.target }}</span></td>
 
           				</tr>
@@ -66,30 +89,43 @@
 
 
               {{ result.output | safe }}
+
+
           		</div>
           	</div>
           </div>
 
-          <div class="col-md-6">
-            <div class="panel panel-info">
-              <div class="panel-heading">Predict Now</div>
-              <div class="panel-body">
-                <div class="col-md-12">
-                <form action="/prepare/{{ result.id }}" method="POST">
-                  {% for id, row in result.best_five_features.iterrows() %}
-                  <div class="form-group">
-                    <label>{{ row['Features']  }}</label>
-                    <input type="number" name="{{ row['Features'] }}" class="form-control" value="{{ result.random.randint(0,9) }}" required>
-                  </div>
-                  {% endfor %}
-                    <input type="hidden" name="model" value="{{  result.dataset.split('.')[0] }}">
-                  <button type="submit" class="btn btn-success">Predict</button>
-                </form>
-                </div>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
   </div>
 {% endblock %}
+
+{% block script %}
+
+<script type="text/javascript">
+  
+  $('.predict').on('click', function(e) {
+    e.preventDefault();
+    $('.output').html('<img src="/static/loader.gif" width="100px">');
+    $.ajax({
+        url: $('#predictForm').prop('action'),
+        type: 'post',
+        // dataType: 'json',
+        data: $('form#predictForm').serialize(),
+        success: function(data) {
+
+          setTimeout(function(){
+            $('.output').html(data);
+          }, 2000); 
+          
+        }
+    });
+  });
+
+
+</script>
+
+
+{% endblock %}
+

@@ -10,6 +10,7 @@ from datetime import datetime
 from forms import SignupForm, LoginForm
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.preprocessing import Imputer
 from sklearn.model_selection import train_test_split
@@ -129,7 +130,7 @@ def get_prepare(id):
 
         features = preprocessing.scale([float(i) for i in form_inputs])
         a = clf.predict(features)
-        return "<h3> Predicted Output:"+ str(a[0]) + "</h3>"
+        return render_template('result.html', data=str(a[0]))
    
 
     if request.method == 'GET':
@@ -139,9 +140,12 @@ def get_prepare(id):
         missing = request.args.get('missing')
         algo = request.args.get('algo')
         feature_algo = request.args.get('feature_selection')
+        top_feature_count = int(request.args.get('top_feature_count'))
 
         # read the dataset and convert to dataframe
         data = pd.read_csv('uploads/'+filename)
+
+        # return data.to_html()
 
 
         # Select the target variable column name 'class'
@@ -198,7 +202,7 @@ def get_prepare(id):
 
 
 
-        X = data[list(best_features_df.head()['Features'])]
+        X = data[list(best_features_df.head(top_feature_count)['Features'])]
 
 
         # Replace all missing values in features with median of respective column
@@ -249,7 +253,7 @@ def get_prepare(id):
             'output': best_features_df.to_html(classes="table table-condensed"),
             'id': id,
             'random': random,
-            'best_five_features': best_features_df.head()
+            'best_features': best_features_df.head(top_feature_count)
 
         }
 
