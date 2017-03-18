@@ -19,8 +19,11 @@ from sklearn.metrics import accuracy_score
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.feature_selection import SelectFromModel, VarianceThreshold, SelectKBest, chi2
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn import tree
 from sklearn.preprocessing import LabelEncoder
 from sklearn.externals import joblib
+import matplotlib.pyplot as plt
 
 
 
@@ -239,6 +242,7 @@ def get_prepare(id):
 
         # Train the instantiated model with 70% training data
         clf.fit(X_train, y_train) 
+        # tree.export_graphviz(clf, out_file='tree.dot')
 
         # Save the trained model
         joblib.dump(clf,  'brain/'+ filename.split('.')[0] +'.pkl') 
@@ -247,6 +251,10 @@ def get_prepare(id):
         # Now model is ready and test using remaining 30%
         y_pred = clf.predict(X_test)
 
+        # print 'Mean Square Error : {}'.format(mean_squared_error(y_test, y_pred)**0.5)
+        # print 'Mean Absolute Error : {}'.format(mean_absolute_error(y_test, y_pred)**0.5)
+        # print y_test
+        # print y_pred
 
         # Result is been sent with accuracy, dataset, algorithm used, imputed method
         response =  {
@@ -265,6 +273,8 @@ def get_prepare(id):
         }
 
         return render_template('report.html', result=response)
+
+
 
 
 @app.route('/<id>')
