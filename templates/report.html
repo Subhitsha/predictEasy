@@ -33,7 +33,7 @@
           		<div class="panel-body">
           		<table class="table table-condensed">
           			<thead>
-          				<th><h2><span class="label label-default">Classification Summary</span></h2></th>
+          				<th><h2><span class="label label-default">Classification Summary</span></h2> </th>
           				<!-- <th>Value</th> -->
 
           			</thead>
@@ -68,6 +68,10 @@
           					<td>{{ result.imputer }}</td>
 
           				</tr>
+                  <tr>
+                    <td><b>Preprocessed</b></td>
+                    <td><a href="../processed/{{ result.dataset }}" target="_blank" class="btn btn-primary"><span class="glyphicon glyphicon-download-alt"></span> Preprocessed</a></td>
+                  </tr>
           				<tr>
           					<td><b>Selected Features:</b></td>
           					<td>

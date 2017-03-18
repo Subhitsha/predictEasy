@@ -31,6 +31,7 @@ mysql = MySQL()
 app = Flask(__name__)
 app.secret_key = 'why would I tell you my secret key?'
 app.config['UPLOAD_FOLDER'] = 'uploads/'
+app.config['DOWNLOAD_FOLDER'] = 'processed/'
 app.config['ALLOWED_EXTENSIONS'] = set(['csv'])
 app.config.from_pyfile('app.cfg')
 db = SQLAlchemy(app)
@@ -175,6 +176,11 @@ def get_prepare(id):
         X = preprocessing.scale(X)
 
 
+        # Save preprocessed dataset
+        df = pd.DataFrame(X, index=[i for i in range(len(X))], columns=features)
+        df.to_csv('processed/'+filename.split('.')[0]+'.csv', index=False)
+
+
         # To find best feature based on its importance
         feature_clf = ExtraTreesClassifier(n_estimators=250, random_state=0)
         feature_clf.fit(X, Y)
@@ -211,6 +217,7 @@ def get_prepare(id):
 
         # Discretization processing on X
         X = preprocessing.scale(X)
+
 
 
         # Split the dataset into 70% training and 30% testing set
@@ -309,6 +316,10 @@ def uploaded_file(filename):
 
 
 
+
+@app.route('/processed/<path:filename>', methods=['GET', 'POST'])
+def download(filename):
+    return send_from_directory(directory='processed', filename=filename)
 
 
 @app.route('/userHome')
